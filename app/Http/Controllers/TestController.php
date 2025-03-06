@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Result;
 use App\Models\Test;
+use App\Models\User;
 use App\Models\UserTest;
 use Illuminate\Http\Request;
 
@@ -96,6 +97,27 @@ class TestController extends Controller
 
 
     }
+
+    public function getCompletedTestsToShowInAchievements($userId)
+    {
+        // Fetch tests the user has completed, including pivot table data
+        $completedTests = User::where('id', $userId)
+            ->with([
+                'tests' => function ($query) {
+                    $query->withPivot(['score']); // Include pivot data
+                }
+            ])
+            ->first();
+
+        if (!$completedTests) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+
+
+        return response()->json($completedTests);
+    }
+
 
 
 }
